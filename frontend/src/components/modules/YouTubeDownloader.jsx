@@ -181,21 +181,30 @@ export default function YouTubeDownloader() {
 
       {/* KVALITA (JEN PRO VIDEO) */}
       {rezim === 'video' && (
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', flexWrap: 'wrap', gap: '8px' }}>
           <label style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>Kvalita videa:</label>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            {['1080', '720', 'nejnizsi'].map((k) => (
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {[
+              { id: '4k', label: '4K Ultra HD (2160p)' },
+              { id: '1080', label: '1080p Full HD' },
+              { id: '720', label: '720p HD' },
+              { id: 'nejnizsi', label: '360p (rychlá)' },
+            ].map((k) => (
               <button
-                key={k}
+                key={k.id}
+                type="button"
                 className="badge"
-                onClick={() => setKvalita(k)}
+                onClick={() => setKvalita(k.id)}
                 style={{
                   cursor: 'pointer',
-                  background: kvalita === k ? 'rgba(239, 68, 68, 0.25)' : undefined,
-                  borderColor: kvalita === k ? '#ef4444' : undefined,
+                  background: kvalita === k.id ? 'rgba(239, 68, 68, 0.25)' : undefined,
+                  borderColor: kvalita === k.id ? '#ef4444' : undefined,
+                  color: kvalita === k.id ? '#ffffff' : undefined,
+                  fontWeight: kvalita === k.id ? '700' : '500',
+                  padding: '6px 10px',
                 }}
               >
-                {k === '1080' ? '1080p Full HD' : k === '720' ? '720p HD' : 'Nízká (rychlá)'}
+                {k.label}
               </button>
             ))}
           </div>

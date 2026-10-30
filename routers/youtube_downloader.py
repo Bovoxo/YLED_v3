@@ -94,19 +94,18 @@ def stahnout_na_pozadi(req: DownloadRequest, task_id: str):
                 }],
             })
         else:
-            if req.kvalita == "max":
-                format_str = 'bestvideo+bestaudio/best'
-            elif req.kvalita == "nejnizsi":
-                format_str = 'bestvideo[height<=360]+bestaudio/best'
+            if req.kvalita in ("4k", "max", "2160"):
+                format_str = 'bestvideo[height<=2160]+bestaudio/bestvideo+bestaudio/best'
             elif req.kvalita == "720":
                 format_str = 'bestvideo[height<=720]+bestaudio/best'
+            elif req.kvalita == "nejnizsi":
+                format_str = 'bestvideo[height<=360]+bestaudio/best'
             else:
                 format_str = 'bestvideo[height<=1080]+bestaudio/best'
 
             ydl_opts.update({
                 'format': format_str,
                 'merge_output_format': 'mp4',
-                'postprocessor_args': {'merger': ['-c:v', 'copy', '-c:a', 'aac']},
             })
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:

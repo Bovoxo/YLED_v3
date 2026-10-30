@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import {
   Timer, Play, Pause, RotateCcw, Maximize, Minimize, Volume2, VolumeX,
-  CircleDot, SlidersHorizontal, Sparkles
+  CircleDot, SlidersHorizontal, Settings, X
 } from 'lucide-react'
 
 export default function CountdownTimer() {
@@ -15,6 +15,7 @@ export default function CountdownTimer() {
   const [zvukPovolen, setZvukPovolen] = useState(true)
   const [jeFullscreen, setJeFullscreen] = useState(false)
   const [stylZobrazeni, setStylZobrazeni] = useState('kruh') // 'kruh' | 'lista'
+  const [zobrazitNastaveni, setZobrazitNastaveni] = useState(false)
   const [vlastniMinuty, setVlastniMinuty] = useState('')
   const [vlastniSekundy, setVlastniSekundy] = useState('')
 
@@ -257,18 +258,22 @@ export default function CountdownTimer() {
       ref={containerRef}
       className="glass-panel animate-fade-in"
       style={{
-        maxWidth: jeFullscreen ? '100%' : '820px',
+        maxWidth: jeFullscreen ? '100%' : '840px',
+        width: '100%',
         margin: '0 auto',
         height: jeFullscreen ? '100vh' : 'auto',
+        minHeight: jeFullscreen ? '100vh' : 'auto',
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         background: jeFullscreen ? '#070b12' : undefined,
         borderRadius: jeFullscreen ? '0' : undefined,
         border: jeFullscreen ? 'none' : undefined,
-        padding: jeFullscreen ? '40px 24px' : '28px',
+        padding: jeFullscreen ? '16px 36px 20px 36px' : '28px',
         position: 'relative',
         userSelect: 'none',
+        overflow: jeFullscreen ? 'hidden' : 'visible',
+        boxSizing: 'border-box',
       }}
     >
       {/* HORNÍ LIŠTA: NÁZEV + PŘEPÍNAČ STYLU + ZVUK + FULLSCREEN */}
@@ -276,9 +281,10 @@ export default function CountdownTimer() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: jeFullscreen ? '24px' : '20px',
+        marginBottom: jeFullscreen ? '12px' : '20px',
         flexWrap: 'wrap',
         gap: '12px',
+        flexShrink: 0,
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <div style={{
@@ -300,8 +306,8 @@ export default function CountdownTimer() {
           </div>
         </div>
 
-        {/* PRAVÉ RYCHLÉ VOLBY: STYL, ZVUK, FULLSCREEN */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {/* PRAVÉ RYCHLÉ VOLBY: STYL, ZVUK, PŘEDVOLBY (VE FULLSCREENU), FULLSCREEN */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
           {/* PŘEPÍNAČ KRUH / LIŠTA */}
           <button
             onClick={() => setStylZobrazeni(stylZobrazeni === 'kruh' ? 'lista' : 'kruh')}
@@ -332,6 +338,25 @@ export default function CountdownTimer() {
             {zvukPovolen ? <Volume2 size={16} /> : <VolumeX size={16} color="var(--text-muted)" />}
           </button>
 
+          {/* TLAČÍTKO NASTAVENÍ ČASU VE FULLSCREENU */}
+          {jeFullscreen && (
+            <button
+              onClick={() => setZobrazitNastaveni(!zobrazitNastaveni)}
+              className="btn btn-secondary"
+              style={{
+                padding: '8px 12px',
+                fontSize: '12px',
+                borderRadius: '10px',
+                backgroundColor: zobrazitNastaveni ? 'rgba(56, 189, 248, 0.25)' : undefined,
+                borderColor: zobrazitNastaveni ? '#38bdf8' : undefined,
+              }}
+              title="Zobrazit / skrýt předvolby času"
+            >
+              <Settings size={15} />
+              <span>Předvolby</span>
+            </button>
+          )}
+
           {/* FULLSCREEN */}
           <button
             onClick={toggleFullscreen}
@@ -344,8 +369,14 @@ export default function CountdownTimer() {
         </div>
       </div>
 
-      {/* HLAVNÍ DISPLEJ ČASOVAČE */}
+      {/* HLAVNÍ DISPLEJ ČASOVAČE (VYUŽÍVÁ CELOU ŠÍŘKU I VÝŠKU VE FULLSCREENU) */}
       <div style={{
+        flex: 1,
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
         position: 'relative',
         background: vyprsel
           ? 'radial-gradient(circle, rgba(239, 68, 68, 0.22) 0%, rgba(0,0,0,0.4) 100%)'
@@ -357,10 +388,10 @@ export default function CountdownTimer() {
           : jeKriticky
           ? '2px solid rgba(239, 68, 68, 0.7)'
           : '1px solid rgba(255, 255, 255, 0.08)',
-        borderRadius: '24px',
-        padding: jeFullscreen ? '50px 20px' : '36px 20px',
+        borderRadius: jeFullscreen ? '28px' : '24px',
+        padding: jeFullscreen ? '24px 30px' : '36px 20px',
         textAlign: 'center',
-        marginBottom: '24px',
+        marginBottom: jeFullscreen ? '16px' : '24px',
         boxShadow: vyprsel
           ? '0 0 60px rgba(239, 68, 68, 0.35), inset 0 0 30px rgba(239, 68, 68, 0.2)'
           : jeKriticky
@@ -374,7 +405,7 @@ export default function CountdownTimer() {
           <div style={{
             position: 'relative',
             width: '100%',
-            maxWidth: jeFullscreen ? 'min(62vh, 440px)' : '320px',
+            maxWidth: jeFullscreen ? 'min(66vh, 640px)' : '340px',
             aspectRatio: '1 / 1',
             margin: '0 auto',
             display: 'flex',
@@ -413,7 +444,7 @@ export default function CountdownTimer() {
                 fill="none"
                 style={{
                   transition: 'stroke-dashoffset 0.35s ease, stroke 0.3s ease',
-                  filter: `drop-shadow(0 0 12px ${barvaStavu}aa)`,
+                  filter: `drop-shadow(0 0 14px ${barvaStavu}aa)`,
                 }}
               />
             </svg>
@@ -429,21 +460,21 @@ export default function CountdownTimer() {
               padding: '20px',
             }}>
               {/* STAVOVÝ ŠTÍTEK */}
-              <div style={{ marginBottom: '8px' }}>
+              <div style={{ marginBottom: jeFullscreen ? '14px' : '8px' }}>
                 {vyprsel ? (
-                  <span className="badge badge-red" style={{ fontSize: '13px', padding: '4px 12px', fontWeight: '800' }}>
+                  <span className="badge badge-red" style={{ fontSize: jeFullscreen ? '16px' : '13px', padding: '5px 16px', fontWeight: '800' }}>
                     ČAS VYPRŠEL!
                   </span>
                 ) : jeKriticky ? (
-                  <span className="badge badge-red" style={{ fontSize: '12px', padding: '3px 10px', animation: 'pulse 1s infinite' }}>
+                  <span className="badge badge-red" style={{ fontSize: jeFullscreen ? '15px' : '12px', padding: '4px 14px', animation: 'pulse 1s infinite' }}>
                     POZOR! {zbyvajiciSekundy}s
                   </span>
                 ) : bezi ? (
-                  <span className="badge badge-blue" style={{ fontSize: '11px', padding: '2px 8px' }}>
+                  <span className="badge badge-blue" style={{ fontSize: jeFullscreen ? '13px' : '11px', padding: '3px 10px' }}>
                     BĚŽÍ
                   </span>
                 ) : (
-                  <span className="badge" style={{ fontSize: '11px', color: 'var(--text-muted)' }}>
+                  <span className="badge" style={{ fontSize: jeFullscreen ? '13px' : '11px', color: 'var(--text-muted)' }}>
                     PAUZA
                   </span>
                 )}
@@ -451,14 +482,14 @@ export default function CountdownTimer() {
 
               {/* DIGITÁLNÍ ČÍSLICE */}
               <div style={{
-                fontSize: jeFullscreen ? 'clamp(58px, 14vw, 110px)' : 'clamp(44px, 10vw, 64px)',
+                fontSize: jeFullscreen ? 'clamp(68px, 15vw, 125px)' : 'clamp(44px, 10vw, 64px)',
                 fontWeight: '900',
                 fontFamily: 'JetBrains Mono, monospace',
                 fontVariantNumeric: 'tabular-nums',
-                letterSpacing: '-1.5px',
+                letterSpacing: '-2px',
                 lineHeight: '1',
                 color: barvaStavu,
-                textShadow: `0 0 30px ${barvaStavu}80`,
+                textShadow: `0 0 35px ${barvaStavu}80`,
                 transition: 'color 0.3s ease',
               }}>
                 {formatCas(zbyvajiciSekundy)}
@@ -466,72 +497,72 @@ export default function CountdownTimer() {
 
               {/* DETAIL: CELKOVÝ ČAS A PROCENTA */}
               <div style={{
-                marginTop: '10px',
-                fontSize: '12px',
+                marginTop: jeFullscreen ? '16px' : '10px',
+                fontSize: jeFullscreen ? '15px' : '12px',
                 fontWeight: '600',
                 color: 'var(--text-secondary)',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
+                gap: '8px',
                 fontVariantNumeric: 'tabular-nums',
               }}>
                 <span>z {formatCas(celkovyCas)}</span>
                 <span style={{ color: 'var(--text-muted)' }}>•</span>
-                <span style={{ color: barvaStavu, fontWeight: '700' }}>{Math.round(procenta)} %</span>
+                <span style={{ color: barvaStavu, fontWeight: '800' }}>{Math.round(procenta)} %</span>
               </div>
             </div>
           </div>
         ) : (
-          /* VARIANT B: LINEÁRNÍ DISPLEJ S VELKOU ČASOVOU LIŠTOU */
-          <div>
+          /* VARIANT B: LINEÁRNÍ DISPLEJ S VELKOU ČASOVOU LIŠTOU (ŠIROKOU NA CELÝ MONITOR) */
+          <div style={{ width: '100%', maxWidth: jeFullscreen ? 'min(94vw, 1350px)' : '100%' }}>
             {/* DIGITÁLNÍ ČÍSLICE */}
             <div style={{
-              fontSize: jeFullscreen ? 'clamp(80px, 20vw, 180px)' : 'clamp(60px, 14vw, 110px)',
+              fontSize: jeFullscreen ? 'clamp(95px, 22vw, 240px)' : 'clamp(60px, 14vw, 110px)',
               fontWeight: '900',
               fontFamily: 'JetBrains Mono, monospace',
               fontVariantNumeric: 'tabular-nums',
-              letterSpacing: '-2px',
+              letterSpacing: '-3px',
               lineHeight: '1',
               color: barvaStavu,
-              textShadow: `0 0 35px ${barvaStavu}70`,
+              textShadow: `0 0 45px ${barvaStavu}80`,
               transition: 'color 0.3s ease',
             }}>
               {formatCas(zbyvajiciSekundy)}
             </div>
 
             {/* STAVOVÁ ZPRÁVA */}
-            <div style={{ marginTop: '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
+            <div style={{ marginTop: jeFullscreen ? '20px' : '16px', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               {vyprsel ? (
-                <span className="badge badge-red" style={{ fontSize: '14px', padding: '5px 14px', fontWeight: '800' }}>
+                <span className="badge badge-red" style={{ fontSize: jeFullscreen ? '16px' : '14px', padding: '6px 16px', fontWeight: '800' }}>
                   ČAS VYPRŠEL!
                 </span>
               ) : jeKriticky ? (
-                <span className="badge badge-red" style={{ fontSize: '13px', padding: '4px 12px' }}>
+                <span className="badge badge-red" style={{ fontSize: jeFullscreen ? '15px' : '13px', padding: '5px 14px' }}>
                   Posledních {zbyvajiciSekundy} sekund!
                 </span>
               ) : bezi ? (
-                <span className="badge badge-blue">Odpočítávání běží</span>
+                <span className="badge badge-blue" style={{ fontSize: jeFullscreen ? '14px' : '12px' }}>Odpočítávání běží</span>
               ) : (
-                <span className="badge" style={{ color: 'var(--text-muted)' }}>Pozastaveno</span>
+                <span className="badge" style={{ color: 'var(--text-muted)', fontSize: jeFullscreen ? '14px' : '12px' }}>Pozastaveno</span>
               )}
 
-              <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums' }}>
+              <span style={{ fontSize: jeFullscreen ? '16px' : '13px', color: 'var(--text-secondary)', fontVariantNumeric: 'tabular-nums', fontWeight: '700' }}>
                 (z {formatCas(celkovyCas)} • {Math.round(procenta)} %)
               </span>
             </div>
 
-            {/* ZLEPŠENÁ DYNAMICKÁ LIŠTA */}
+            {/* ZLEPŠENÁ DYNAMICKÁ LIŠTA - ŠIROKÁ NA CELÝ MONITOR */}
             <div style={{
-              height: '14px',
+              height: jeFullscreen ? '22px' : '14px',
               width: '100%',
-              maxWidth: '560px',
+              maxWidth: jeFullscreen ? 'min(92vw, 1250px)' : '560px',
               background: 'rgba(255, 255, 255, 0.08)',
               borderRadius: '9999px',
-              margin: '24px auto 0 auto',
+              margin: jeFullscreen ? '36px auto 0 auto' : '24px auto 0 auto',
               overflow: 'hidden',
-              boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.5)',
-              border: '1px solid rgba(255, 255, 255, 0.06)',
-              padding: '2px',
+              boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.6)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              padding: '3px',
             }}>
               <div style={{
                 height: '100%',
@@ -542,7 +573,7 @@ export default function CountdownTimer() {
                   : jeKriticky
                   ? '#ef4444'
                   : `linear-gradient(90deg, ${barvaStavu} 0%, #38bdf8 100%)`,
-                boxShadow: `0 0 14px ${barvaStavu}`,
+                boxShadow: `0 0 20px ${barvaStavu}`,
                 transition: 'width 0.35s ease, background 0.3s ease',
               }} />
             </div>
@@ -555,14 +586,15 @@ export default function CountdownTimer() {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        gap: '8px',
-        marginBottom: '20px',
+        gap: jeFullscreen ? '12px' : '8px',
+        marginBottom: jeFullscreen ? '16px' : '20px',
         flexWrap: 'wrap',
+        flexShrink: 0,
       }}>
         <button
           onClick={() => upravitCas(-60)}
           className="btn btn-secondary"
-          style={{ padding: '8px 14px', fontSize: '13px', borderRadius: '12px' }}
+          style={{ padding: jeFullscreen ? '10px 18px' : '8px 14px', fontSize: jeFullscreen ? '15px' : '13px', borderRadius: '12px' }}
           title="Zkrátit čas o 1 minutu"
         >
           -1 min
@@ -570,7 +602,7 @@ export default function CountdownTimer() {
         <button
           onClick={() => upravitCas(-30)}
           className="btn btn-secondary"
-          style={{ padding: '8px 14px', fontSize: '13px', borderRadius: '12px' }}
+          style={{ padding: jeFullscreen ? '10px 18px' : '8px 14px', fontSize: jeFullscreen ? '15px' : '13px', borderRadius: '12px' }}
           title="Zkrátit čas o 30 sekund"
         >
           -30 s
@@ -578,7 +610,7 @@ export default function CountdownTimer() {
         <button
           onClick={() => upravitCas(30)}
           className="btn btn-secondary"
-          style={{ padding: '8px 14px', fontSize: '13px', borderRadius: '12px' }}
+          style={{ padding: jeFullscreen ? '10px 18px' : '8px 14px', fontSize: jeFullscreen ? '15px' : '13px', borderRadius: '12px' }}
           title="Přidat 30 sekund navíc"
         >
           +30 s
@@ -586,7 +618,7 @@ export default function CountdownTimer() {
         <button
           onClick={() => upravitCas(60)}
           className="btn btn-secondary"
-          style={{ padding: '8px 14px', fontSize: '13px', borderRadius: '12px' }}
+          style={{ padding: jeFullscreen ? '10px 18px' : '8px 14px', fontSize: jeFullscreen ? '15px' : '13px', borderRadius: '12px' }}
           title="Přidat 1 minutu navíc"
         >
           +1 min
@@ -594,7 +626,7 @@ export default function CountdownTimer() {
         <button
           onClick={() => upravitCas(300)}
           className="btn btn-secondary"
-          style={{ padding: '8px 14px', fontSize: '13px', borderRadius: '12px' }}
+          style={{ padding: jeFullscreen ? '10px 18px' : '8px 14px', fontSize: jeFullscreen ? '15px' : '13px', borderRadius: '12px' }}
           title="Přidat 5 minut navíc"
         >
           +5 min
@@ -602,17 +634,25 @@ export default function CountdownTimer() {
       </div>
 
       {/* HLAVNÍ OVLÁDACÍ TLAČÍTKA: START / PAUZA / RESET */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: '14px', marginBottom: '24px', flexWrap: 'wrap' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        gap: '14px',
+        marginBottom: (!jeFullscreen || zobrazitNastaveni) ? '20px' : '6px',
+        flexWrap: 'wrap',
+        flexShrink: 0
+      }}>
         <button
           onClick={startStop}
           className={`btn ${bezi ? 'btn-danger' : 'btn-primary'}`}
           style={{
-            padding: '16px 40px',
-            fontSize: '18px',
+            padding: jeFullscreen ? '18px 48px' : '16px 40px',
+            fontSize: jeFullscreen ? '20px' : '18px',
             borderRadius: '16px',
-            minWidth: '180px',
+            minWidth: jeFullscreen ? '200px' : '180px',
             boxShadow: bezi ? '0 0 25px rgba(239, 68, 68, 0.4)' : '0 0 25px rgba(59, 130, 246, 0.4)',
             transition: 'all 0.2s ease',
+            fontWeight: '800',
           }}
         >
           {bezi ? <Pause size={22} /> : <Play size={22} fill="currentColor" />}
@@ -622,7 +662,7 @@ export default function CountdownTimer() {
         <button
           onClick={reset}
           className="btn btn-secondary"
-          style={{ padding: '16px 26px', borderRadius: '16px' }}
+          style={{ padding: jeFullscreen ? '18px 30px' : '16px 26px', borderRadius: '16px', fontSize: jeFullscreen ? '16px' : '14px' }}
           title="Resetovat na výchozí hodnotu [R]"
         >
           <RotateCcw size={20} />
@@ -630,99 +670,113 @@ export default function CountdownTimer() {
         </button>
       </div>
 
-      {/* VLASTNÍ ČASOVÉ ZADÁNÍ */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '12px',
-        marginBottom: '18px',
-        flexWrap: 'wrap',
-      }}>
-        <form onSubmit={pouzitVlastniCas} style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600' }}>Vlastní čas:</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <input
-              type="number"
-              min="0"
-              max="999"
-              placeholder="0 min"
-              value={vlastniMinuty}
-              onChange={(e) => setVlastniMinuty(e.target.value)}
-              style={{ width: '84px', textAlign: 'center', padding: '8px', fontSize: '14px', borderRadius: '10px' }}
-            />
-            <span style={{ fontWeight: '700', color: 'var(--text-muted)' }}>:</span>
-            <input
-              type="number"
-              min="0"
-              max="59"
-              placeholder="00 s"
-              value={vlastniSekundy}
-              onChange={(e) => setVlastniSekundy(e.target.value)}
-              style={{ width: '84px', textAlign: 'center', padding: '8px', fontSize: '14px', borderRadius: '10px' }}
-            />
+      {/* VLASTNÍ ČAS A PŘEDVOLBY (VŽDY VIDITELNÉ V BĚŽNÉM REŽIMU, VE FULLSCREENU PODLE VOLBY) */}
+      {(!jeFullscreen || zobrazitNastaveni) && (
+        <div style={{
+          background: jeFullscreen ? 'rgba(0,0,0,0.4)' : 'transparent',
+          padding: jeFullscreen ? '14px 20px' : '0',
+          borderRadius: '16px',
+          border: jeFullscreen ? '1px solid rgba(255,255,255,0.08)' : 'none',
+          marginBottom: '10px',
+          animation: 'fadeIn 0.2s ease',
+          flexShrink: 0,
+        }}>
+          {/* VLASTNÍ ČASOVÉ ZADÁNÍ */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '12px',
+            marginBottom: '14px',
+            flexWrap: 'wrap',
+          }}>
+            <form onSubmit={pouzitVlastniCas} style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+              <span style={{ fontSize: '13px', color: 'var(--text-secondary)', fontWeight: '600' }}>Vlastní čas:</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <input
+                  type="number"
+                  min="0"
+                  max="999"
+                  placeholder="0 min"
+                  value={vlastniMinuty}
+                  onChange={(e) => setVlastniMinuty(e.target.value)}
+                  style={{ width: '84px', textAlign: 'center', padding: '8px', fontSize: '14px', borderRadius: '10px' }}
+                />
+                <span style={{ fontWeight: '700', color: 'var(--text-muted)' }}>:</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  placeholder="00 s"
+                  value={vlastniSekundy}
+                  onChange={(e) => setVlastniSekundy(e.target.value)}
+                  style={{ width: '84px', textAlign: 'center', padding: '8px', fontSize: '14px', borderRadius: '10px' }}
+                />
+              </div>
+              <button type="submit" className="btn btn-secondary" style={{ padding: '8px 18px', fontSize: '13px', borderRadius: '10px' }}>
+                Nastavit
+              </button>
+            </form>
           </div>
-          <button type="submit" className="btn btn-secondary" style={{ padding: '8px 18px', fontSize: '13px', borderRadius: '10px' }}>
-            Nastavit
-          </button>
-        </form>
-      </div>
 
-      {/* PŘEDVOLBY ČASU */}
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: '8px',
-        flexWrap: 'wrap',
-        background: 'rgba(0,0,0,0.2)',
-        padding: '12px 16px',
-        borderRadius: '16px',
-        border: '1px solid rgba(255,255,255,0.05)',
-      }}>
-        <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', marginRight: '4px' }}>
-          Předvolby:
-        </span>
-        {[
-          { label: '30s', s: 30 },
-          { label: '1 min', s: 60 },
-          { label: '2 min', s: 120 },
-          { label: '3 min', s: 180 },
-          { label: '5 min', s: 300 },
-          { label: '10 min', s: 600 },
-          { label: '15 min', s: 900 },
-          { label: '20 min', s: 1200 },
-          { label: '30 min', s: 1800 },
-          { label: '45 min', s: 2700 },
-          { label: '60 min', s: 3600 },
-        ].map((p) => {
-          const isSelected = puvodniNastaveni === p.s && !bezi
-          return (
-            <button
-              key={p.s}
-              className="badge"
-              onClick={() => nastavitCas(p.s)}
-              style={{
-                cursor: 'pointer',
-                background: isSelected ? 'rgba(56, 189, 248, 0.25)' : undefined,
-                borderColor: isSelected ? '#38bdf8' : undefined,
-                color: isSelected ? '#ffffff' : undefined,
-                fontWeight: isSelected ? '700' : '500',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              {p.label}
-            </button>
-          )
-        })}
-      </div>
+          {/* PŘEDVOLBY ČASU */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '8px',
+            flexWrap: 'wrap',
+            background: 'rgba(0,0,0,0.2)',
+            padding: '10px 14px',
+            borderRadius: '14px',
+            border: '1px solid rgba(255,255,255,0.05)',
+          }}>
+            <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-muted)', marginRight: '4px' }}>
+              Předvolby:
+            </span>
+            {[
+              { label: '30s', s: 30 },
+              { label: '1 min', s: 60 },
+              { label: '2 min', s: 120 },
+              { label: '3 min', s: 180 },
+              { label: '5 min', s: 300 },
+              { label: '10 min', s: 600 },
+              { label: '15 min', s: 900 },
+              { label: '20 min', s: 1200 },
+              { label: '30 min', s: 1800 },
+              { label: '45 min', s: 2700 },
+              { label: '60 min', s: 3600 },
+            ].map((p) => {
+              const isSelected = puvodniNastaveni === p.s && !bezi
+              return (
+                <button
+                  key={p.s}
+                  type="button"
+                  className="badge"
+                  onClick={() => nastavitCas(p.s)}
+                  style={{
+                    cursor: 'pointer',
+                    background: isSelected ? 'rgba(56, 189, 248, 0.25)' : undefined,
+                    borderColor: isSelected ? '#38bdf8' : undefined,
+                    color: isSelected ? '#ffffff' : undefined,
+                    fontWeight: isSelected ? '700' : '500',
+                    transition: 'all 0.15s ease',
+                  }}
+                >
+                  {p.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* NÁPOVĚDA KLÁVESOVÝCH ZKRATEK */}
       <div style={{
-        marginTop: '16px',
         textAlign: 'center',
         fontSize: '11px',
         color: 'var(--text-muted)',
+        flexShrink: 0,
       }}>
         Zkratky: <kbd style={{ padding: '2px 5px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px' }}>Mezerník</kbd> Start/Pauza • <kbd style={{ padding: '2px 5px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px' }}>R</kbd> Reset • <kbd style={{ padding: '2px 5px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px' }}>F</kbd> Celá obrazovka • <kbd style={{ padding: '2px 5px', background: 'rgba(255,255,255,0.08)', borderRadius: '4px' }}>↑ / ↓</kbd> ±1 min
       </div>

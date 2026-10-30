@@ -1,0 +1,36 @@
+name: Deploy to OpenStack VPS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }} # Např. yleventdeck.cloud nebo IP
+          username: ${{ secrets.SERVER_USER }} # Např. ubuntu
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "🚀 Zahajuji automatický deploy..."
+            cd /cesta/k/tvemu/projektu/na/serveru
+            git pull origin main
+            
+            # Backend aktualizace
+            source venv/bin/activate
+            pip install -r requirements.txt
+            
+            # Frontend build
+            cd frontend
+            npm install
+            npm run build
+            
+            # Restart služeb (např. systemd)
+            # sudo systemctl restart yleventdeck-backend
+            echo "✅ Deploy dokončen!"

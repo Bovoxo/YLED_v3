@@ -1,9 +1,10 @@
-import { Dices, RotateCw, Users, Swords, Bomb, Timer, Volume2, Presentation, Video, UserX, QrCode } from 'lucide-react'
+import { Dices, RotateCw, Users, Swords, Bomb, Timer, Volume2, Presentation, Video, UserX, QrCode, Drama } from 'lucide-react'
 
 export default function Navbar({ aktivni, setAktivni }) {
   const moduly = [
     { id: 'losovac', nazev: 'Losovač', ikona: Dices, barva: '#3b82f6' },
     { id: 'raffle', nazev: 'Kolo štěstí', ikona: RotateCw, barva: '#06b6d4' },
+    { id: 'charades', nazev: 'Šarády', ikona: Drama, barva: '#ec4899' },
     { id: 'tymy', nazev: 'Týmy', ikona: Users, barva: '#22c55e' },
     { id: 'pavouk', nazev: 'Pavouk', ikona: Swords, barva: '#10b981' },
     { id: 'tictacboom', nazev: 'Tik Tak Bum', ikona: Bomb, barva: '#ef4444' },

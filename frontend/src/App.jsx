@@ -12,6 +12,7 @@ import QrGenerator from './components/modules/QrGenerator'
 import LyricsToPpt from './components/modules/LyricsToPpt'
 import YouTubeDownloader from './components/modules/YouTubeDownloader'
 import ImposterGame from './components/modules/ImposterGame'
+import CharadesGame from './components/modules/CharadesGame'
 
 export default function App() {
   const [aktivni, setAktivni] = useState('losovac')
@@ -28,6 +29,7 @@ export default function App() {
       <main>
         {aktivni === 'losovac' && <RandomNumber />}
         {aktivni === 'raffle' && <RaffleWheel />}
+        {aktivni === 'charades' && <CharadesGame />}
         {aktivni === 'tymy' && <TeamSplitter />}
         {aktivni === 'pavouk' && <TournamentBracket />}
         {aktivni === 'tictacboom' && <TicTacBoom />}

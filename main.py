@@ -17,6 +17,7 @@ from routers import tictacboom
 from routers import countdown
 from routers import raffle
 from routers import qr_generator
+from routers import charades
 
 # Zapnutí lokálně:
 # uvicorn main:app --reload --port 8000
@@ -40,6 +41,7 @@ app.include_router(tictacboom.router, tags=["Tik Tak Bum"])
 app.include_router(countdown.router, tags=["Odpočet"])
 app.include_router(raffle.router, tags=["Kolo štěstí"])
 app.include_router(qr_generator.router, tags=["QR Kód"])
+app.include_router(charades.router, tags=["Šarády a Activity"])
 
 # Povolení CORS pro lokální vývoj i produkční doménu
 default_origins = [
@@ -82,7 +84,8 @@ def read_root():
             "tictacboom",
             "countdown",
             "raffle",
-            "qr"
+            "qr",
+            "charades"
         ],
         "docs": "/docs"
     }

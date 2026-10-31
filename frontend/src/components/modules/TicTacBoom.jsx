@@ -5,7 +5,26 @@ export default function TicTacBoom() {
   const [rezim, setRezim] = useState('slabiky') // 'slabiky' | 'temata'
   const [bezi, setBezi] = useState(false)
   const [vybouchlo, setVybouchlo] = useState(false)
-  const [zvukPovolen, setZvukPovolen] = useState(true)
+  const [zvukPovolen, setZvukPovolen] = useState(() => {
+    try {
+      const ulozene = localStorage.getItem('yled_zvuk_povolen')
+      return ulozene !== null ? ulozene === 'true' : true
+    } catch {
+      return true
+    }
+  })
+  const zvukPovolenRef = useRef(zvukPovolen)
+
+  const toggleZvuk = () => {
+    setZvukPovolen((prev) => {
+      const novy = !prev
+      zvukPovolenRef.current = novy
+      try {
+        localStorage.setItem('yled_zvuk_povolen', novy ? 'true' : 'false')
+      } catch {}
+      return novy
+    })
+  }
 
   // Aktuální zadání
   const [aktualniSlabika, setAktualniSlabika] = useState('KO')
@@ -71,7 +90,7 @@ export default function TicTacBoom() {
   }
 
   const zahrajTik = (frekvence = 900) => {
-    if (!zvukPovolen) return
+    if (!zvukPovolenRef.current) return
     try {
       const ctx = getAudioContext()
       const osc = ctx.createOscillator()
@@ -92,7 +111,7 @@ export default function TicTacBoom() {
   }
 
   const zahrajBum = () => {
-    if (!zvukPovolen) return
+    if (!zvukPovolenRef.current) return
     try {
       const ctx = getAudioContext()
       
@@ -236,8 +255,8 @@ export default function TicTacBoom() {
   return (
     <div className="glass-panel animate-fade-in" style={{ maxWidth: '820px', margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '16px', marginBottom: '12px' }}>
-          <Bomb size={32} color="#ef4444" />
+        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(236, 72, 153, 0.12)', borderRadius: '16px', marginBottom: '12px' }}>
+          <Bomb size={32} color="#ec4899" />
         </div>
         <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '6px' }}>Tik Tak Bum</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
@@ -252,8 +271,8 @@ export default function TicTacBoom() {
           disabled={bezi}
           className="btn btn-secondary"
           style={{
-            borderColor: rezim === 'slabiky' ? '#ef4444' : undefined,
-            backgroundColor: rezim === 'slabiky' ? 'rgba(239, 68, 68, 0.15)' : undefined,
+            borderColor: rezim === 'slabiky' ? '#ec4899' : undefined,
+            backgroundColor: rezim === 'slabiky' ? 'rgba(236, 72, 153, 0.15)' : undefined,
           }}
         >
           Klasický režim: Slabiky
@@ -263,8 +282,8 @@ export default function TicTacBoom() {
           disabled={bezi}
           className="btn btn-secondary"
           style={{
-            borderColor: rezim === 'temata' ? '#ef4444' : undefined,
-            backgroundColor: rezim === 'temata' ? 'rgba(239, 68, 68, 0.15)' : undefined,
+            borderColor: rezim === 'temata' ? '#ec4899' : undefined,
+            backgroundColor: rezim === 'temata' ? 'rgba(236, 72, 153, 0.15)' : undefined,
           }}
         >
           Párty režim: Témata
@@ -355,7 +374,7 @@ export default function TicTacBoom() {
           )}
 
           <button
-            onClick={() => setZvukPovolen(!zvukPovolen)}
+            onClick={toggleZvuk}
             className="btn btn-secondary"
             title={zvukPovolen ? 'Ztlumit zvuk tikání' : 'Zapnout zvuk tikání'}
             style={{ padding: '16px' }}

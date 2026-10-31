@@ -12,7 +12,27 @@ export default function CountdownTimer() {
   // Aktuálně zbývající čas v sekundách
   const [zbyvajiciSekundy, setZbyvajiciSekundy] = useState(180)
   const [bezi, setBezi] = useState(false)
-  const [zvukPovolen, setZvukPovolen] = useState(true)
+  const [zvukPovolen, setZvukPovolen] = useState(() => {
+    try {
+      const ulozene = localStorage.getItem('yled_zvuk_povolen')
+      return ulozene !== null ? ulozene === 'true' : true
+    } catch {
+      return true
+    }
+  })
+  const zvukPovolenRef = useRef(zvukPovolen)
+
+  const toggleZvuk = () => {
+    setZvukPovolen((prev) => {
+      const novy = !prev
+      zvukPovolenRef.current = novy
+      try {
+        localStorage.setItem('yled_zvuk_povolen', novy ? 'true' : 'false')
+      } catch {}
+      return novy
+    })
+  }
+
   const [jeFullscreen, setJeFullscreen] = useState(false)
   const [stylZobrazeni, setStylZobrazeni] = useState('kruh') // 'kruh' | 'lista'
   const [zobrazitNastaveni, setZobrazitNastaveni] = useState(false)
@@ -35,7 +55,7 @@ export default function CountdownTimer() {
 
   // Zvukový signál pro odpočítávání (krátké pípnutí v posledních 5 sekundách)
   const zahrajPipnuti = (vysoke = false) => {
-    if (!zvukPovolen) return
+    if (!zvukPovolenRef.current) return
     try {
       const ctx = getAudioContext()
       const osc = ctx.createOscillator()
@@ -56,7 +76,7 @@ export default function CountdownTimer() {
 
   // Zvuk konce (vítězná fanfára / gong)
   const zahrajKonec = () => {
-    if (!zvukPovolen) return
+    if (!zvukPovolenRef.current) return
     try {
       const ctx = getAudioContext()
       const now = ctx.currentTime
@@ -330,7 +350,7 @@ export default function CountdownTimer() {
 
           {/* PŘEPÍNAČ ZVUKU */}
           <button
-            onClick={() => setZvukPovolen(!zvukPovolen)}
+            onClick={toggleZvuk}
             className="btn btn-secondary"
             style={{ padding: '8px 12px', fontSize: '12px', borderRadius: '10px' }}
             title={zvukPovolen ? 'Ztlumit zvukové signály' : 'Zapnout zvuk'}

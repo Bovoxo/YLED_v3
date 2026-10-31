@@ -82,8 +82,8 @@ export default function ImposterGame() {
   return (
     <div className="glass-panel animate-fade-in" style={{ maxWidth: '620px', margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(250, 204, 21, 0.1)', borderRadius: '16px', marginBottom: '12px' }}>
-          <UserX size={32} color="#facc15" />
+        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(236, 72, 153, 0.12)', borderRadius: '16px', marginBottom: '12px' }}>
+          <UserX size={32} color="#ec4899" />
         </div>
         <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '6px' }}>Imposter Game</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
@@ -175,8 +175,8 @@ export default function ImposterGame() {
           <button
             onClick={startHry}
             disabled={nacita}
-            className="btn btn-primary"
-            style={{ width: '100%', padding: '16px', fontSize: '17px', background: 'linear-gradient(135deg, #facc15 0%, #ca8a04 100%)', color: '#000', fontWeight: '800' }}
+            className="btn btn-pink"
+            style={{ width: '100%', padding: '16px', fontSize: '17px', fontWeight: '800' }}
           >
             <Sparkles size={18} />
             {nacita ? 'LOSUJI HRU...' : 'ZAHÁJIT HRU'}

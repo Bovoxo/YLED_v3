@@ -56,8 +56,8 @@ export default function TeamSplitter() {
   return (
     <div className="glass-panel animate-fade-in">
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(34, 197, 94, 0.1)', borderRadius: '16px', marginBottom: '12px' }}>
-          <Users size={32} color="#22c55e" />
+        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(59, 130, 246, 0.12)', borderRadius: '16px', marginBottom: '12px' }}>
+          <Users size={32} color="#3b82f6" />
         </div>
         <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '6px' }}>Rozdělovač týmů</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
@@ -97,8 +97,8 @@ export default function TeamSplitter() {
                   onClick={() => setPocetTymu(pocet)}
                   style={{
                     cursor: 'pointer',
-                    background: pocetTymu === pocet ? 'rgba(34, 197, 94, 0.25)' : undefined,
-                    borderColor: pocetTymu === pocet ? '#22c55e' : undefined,
+                    background: pocetTymu === pocet ? 'rgba(59, 130, 246, 0.25)' : undefined,
+                    borderColor: pocetTymu === pocet ? '#3b82f6' : undefined,
                   }}
                 >
                   {pocet}
@@ -118,7 +118,7 @@ export default function TeamSplitter() {
           <button
             onClick={rozdelit}
             disabled={nacita || seznamRadku.length === 0}
-            className="btn btn-success"
+            className="btn btn-primary"
             style={{ width: '100%', padding: '15px', marginTop: '20px', fontSize: '16px' }}
           >
             <Shuffle size={18} />

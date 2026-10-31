@@ -63,8 +63,8 @@ export default function RandomNumber() {
 
   return (
     <div className="glass-panel animate-fade-in" style={{ maxWidth: '520px', margin: '0 auto', textAlign: 'center' }}>
-      <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(59, 130, 246, 0.1)', borderRadius: '16px', marginBottom: '14px' }}>
-        <Dices size={32} color="#3b82f6" />
+      <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(236, 72, 153, 0.12)', borderRadius: '16px', marginBottom: '14px' }}>
+        <Dices size={32} color="#ec4899" />
       </div>
 
       <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '6px' }}>Losovač čísel</h2>
@@ -109,7 +109,7 @@ export default function RandomNumber() {
       <button
         onClick={losovat}
         disabled={losujeSe}
-        className="btn btn-primary"
+        className="btn btn-pink"
         style={{ width: '100%', padding: '16px', fontSize: '18px', borderRadius: '14px' }}
       >
         <Sparkles size={20} />

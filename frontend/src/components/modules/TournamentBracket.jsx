@@ -158,8 +158,8 @@ export default function TournamentBracket() {
   return (
     <div className="glass-panel animate-fade-in" style={{ width: '100%', overflowX: 'auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(34, 197, 94, 0.1)', borderRadius: '16px', marginBottom: '12px' }}>
-          <Swords size={32} color="#22c55e" />
+        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(59, 130, 246, 0.12)', borderRadius: '16px', marginBottom: '12px' }}>
+          <Swords size={32} color="#3b82f6" />
         </div>
         <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '6px' }}>Turnajový pavouk</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
@@ -183,8 +183,8 @@ export default function TournamentBracket() {
                     flex: 1,
                     padding: '12px',
                     borderRadius: '12px',
-                    border: pocetTymu === pocet ? '1px solid #22c55e' : '1px solid rgba(255, 255, 255, 0.08)',
-                    backgroundColor: pocetTymu === pocet ? 'rgba(34, 197, 94, 0.18)' : 'rgba(255, 255, 255, 0.03)',
+                    border: pocetTymu === pocet ? '1px solid #3b82f6' : '1px solid rgba(255, 255, 255, 0.08)',
+                    backgroundColor: pocetTymu === pocet ? 'rgba(59, 130, 246, 0.2)' : 'rgba(255, 255, 255, 0.03)',
                     color: pocetTymu === pocet ? '#ffffff' : 'var(--text-secondary)',
                     fontWeight: '700',
                     cursor: 'pointer',
@@ -218,7 +218,7 @@ export default function TournamentBracket() {
 
           <button
             onClick={vytvoritPavouka}
-            className="btn btn-success"
+            className="btn btn-primary"
             style={{ width: '100%', padding: '16px', fontSize: '17px', borderRadius: '14px' }}
           >
             <Sparkles size={18} /> VYGENEROVAT TURNAJ
@@ -372,13 +372,13 @@ export default function TournamentBracket() {
                           padding: '10px 14px',
                           borderBottom: '1px solid rgba(255, 255, 255, 0.06)',
                           cursor: zapas.tym1.nazev !== 'TBD' ? 'pointer' : 'default',
-                          backgroundColor: zapas.vitez === 'tym1' ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
+                          backgroundColor: zapas.vitez === 'tym1' ? 'rgba(59, 130, 246, 0.25)' : 'transparent',
                           transition: 'all 0.2s ease',
                         }}
                       >
                         <span style={{
                           fontWeight: zapas.vitez === 'tym1' ? '800' : '500',
-                          color: zapas.vitez === 'tym1' ? '#86efac' : zapas.tym1.nazev === 'TBD' ? 'var(--text-muted)' : '#ffffff',
+                          color: zapas.vitez === 'tym1' ? '#93c5fd' : zapas.tym1.nazev === 'TBD' ? 'var(--text-muted)' : '#ffffff',
                           fontSize: '14px',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
@@ -414,13 +414,13 @@ export default function TournamentBracket() {
                           alignItems: 'center',
                           padding: '10px 14px',
                           cursor: zapas.tym2.nazev !== 'TBD' ? 'pointer' : 'default',
-                          backgroundColor: zapas.vitez === 'tym2' ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
+                          backgroundColor: zapas.vitez === 'tym2' ? 'rgba(59, 130, 246, 0.25)' : 'transparent',
                           transition: 'all 0.2s ease',
                         }}
                       >
                         <span style={{
                           fontWeight: zapas.vitez === 'tym2' ? '800' : '500',
-                          color: zapas.vitez === 'tym2' ? '#86efac' : zapas.tym2.nazev === 'TBD' ? 'var(--text-muted)' : '#ffffff',
+                          color: zapas.vitez === 'tym2' ? '#93c5fd' : zapas.tym2.nazev === 'TBD' ? 'var(--text-muted)' : '#ffffff',
                           fontSize: '14px',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',

@@ -85,8 +85,8 @@ export default function LyricsToPpt() {
   return (
     <div className="glass-panel animate-fade-in" style={{ maxWidth: '820px', margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(168, 85, 247, 0.1)', borderRadius: '16px', marginBottom: '12px' }}>
-          <Presentation size={32} color="#a855f7" />
+        <div style={{ display: 'inline-flex', padding: '12px', background: 'rgba(249, 115, 22, 0.12)', borderRadius: '16px', marginBottom: '12px' }}>
+          <Presentation size={32} color="#f97316" />
         </div>
         <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '6px' }}>Texty do PowerPointu</h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>
@@ -114,7 +114,7 @@ export default function LyricsToPpt() {
         <button
           onClick={najitText}
           disabled={hledam}
-          className="btn btn-purple"
+          className="btn btn-orange"
           style={{ flexShrink: 0, padding: '12px 24px' }}
         >
           {hledam ? <Loader2 size={16} className="spin" /> : <Search size={16} />}
@@ -196,7 +196,7 @@ export default function LyricsToPpt() {
         <button
           onClick={stahnout}
           disabled={generuji || !textPisne.trim()}
-          className="btn btn-purple"
+          className="btn btn-orange"
           style={{ padding: '12px 24px' }}
         >
           {generuji ? <Loader2 size={16} className="spin" /> : <Download size={16} />}

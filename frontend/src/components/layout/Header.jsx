@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { AlertCircle } from 'lucide-react'
 
-export default function Header() {
+export default function Header({ compact = false }) {
   const [online, setOnline] = useState(null)
 
   useEffect(() => {
@@ -18,6 +18,31 @@ export default function Header() {
     const interval = setInterval(checkBackend, 20000)
     return () => clearInterval(interval)
   }, [])
+
+  if (compact) {
+    if (online === false) {
+      return (
+        <header style={{ textAlign: 'center', marginBottom: '20px' }}>
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            padding: '6px 14px',
+            background: 'rgba(239, 68, 68, 0.15)',
+            border: '1px solid rgba(239, 68, 68, 0.35)',
+            borderRadius: '10px',
+            color: '#f87171',
+            fontSize: '12px',
+            fontWeight: '600',
+          }}>
+            <AlertCircle size={14} />
+            <span>Backend server je momentálně nedostupný</span>
+          </div>
+        </header>
+      )
+    }
+    return null
+  }
 
   return (
     <header style={{ textAlign: 'center', marginBottom: '32px' }}>

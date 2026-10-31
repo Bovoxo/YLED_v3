@@ -52,7 +52,27 @@ export default function RaffleWheel() {
   const [polozky, setPolozky] = useState([])
   const [vitez, setVitez] = useState(null)
   const [tociSe, setTociSe] = useState(false)
-  const [zvukPovolen, setZvukPovolen] = useState(true)
+  const [zvukPovolen, setZvukPovolen] = useState(() => {
+    try {
+      const ulozene = localStorage.getItem('yled_zvuk_povolen')
+      return ulozene !== null ? ulozene === 'true' : true
+    } catch {
+      return true
+    }
+  })
+  const zvukPovolenRef = useRef(zvukPovolen)
+
+  const toggleZvuk = () => {
+    setZvukPovolen((prev) => {
+      const novy = !prev
+      zvukPovolenRef.current = novy
+      try {
+        localStorage.setItem('yled_zvuk_povolen', novy ? 'true' : 'false')
+      } catch {}
+      return novy
+    })
+  }
+
   const [jeFullscreen, setJeFullscreen] = useState(false)
   const [zvolenaPaleta, setZvolenaPaleta] = useState('rainbow')
   const [flapperTilt, setFlapperTilt] = useState(0)
@@ -77,7 +97,7 @@ export default function RaffleWheel() {
 
   // Zvuk cvaknutí kolíčku přes Web Audio API
   const zahrajCvaknuti = () => {
-    if (!zvukPovolen) return
+    if (!zvukPovolenRef.current) return
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext
       const ctx = new AudioCtx()
@@ -100,7 +120,7 @@ export default function RaffleWheel() {
 
   // Vítězná fanfára při zastavení kola
   const zahrajFanfaru = () => {
-    if (!zvukPovolen) return
+    if (!zvukPovolenRef.current) return
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext
       const ctx = new AudioCtx()
@@ -441,10 +461,10 @@ export default function RaffleWheel() {
           <div style={{
             display: 'inline-flex',
             padding: '8px',
-            background: 'rgba(6, 182, 212, 0.15)',
+            background: 'rgba(236, 72, 153, 0.15)',
             borderRadius: '12px',
           }}>
-            <RotateCw size={22} color="#06b6d4" />
+            <RotateCw size={22} color="#ec4899" />
           </div>
           <div>
             <h2 style={{ fontSize: '18px', fontWeight: '800', margin: 0, letterSpacing: '-0.3px' }}>
@@ -485,7 +505,7 @@ export default function RaffleWheel() {
 
           {/* PŘEPÍNAČ ZVUKU */}
           <button
-            onClick={() => setZvukPovolen(!zvukPovolen)}
+            onClick={toggleZvuk}
             className="btn btn-secondary"
             style={{ padding: '8px 12px', fontSize: '12px', borderRadius: '10px' }}
             title={zvukPovolen ? 'Ztlumit zvuk' : 'Zapnout zvuk'}
@@ -603,13 +623,13 @@ export default function RaffleWheel() {
             <button
               onClick={roztocitKolo}
               disabled={tociSe || polozky.length < 2}
-              className="btn btn-primary"
+              className="btn btn-pink"
               style={{
                 width: '100%',
                 padding: jeFullscreen && !zobrazitEditor ? '16px 24px' : '14px 20px',
                 fontSize: jeFullscreen && !zobrazitEditor ? '20px' : '17px',
                 borderRadius: '16px',
-                boxShadow: tociSe ? 'none' : '0 0 35px rgba(6, 182, 212, 0.45)',
+                boxShadow: tociSe ? 'none' : '0 0 35px rgba(236, 72, 153, 0.45)',
                 fontWeight: '800',
                 letterSpacing: '0.5px',
               }}

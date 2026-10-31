@@ -259,12 +259,66 @@ export default function CharadesGame() {
   const [casovacBezi, setCasovacBezi] = useState(false)
   const [casVyprsel, setCasVyprsel] = useState(false)
 
-  // Zvuk a Fullscreen
-  const [zvukPovolen, setZvukPovolen] = useState(true)
+  // Zvuk a Fullscreen (globální ukládání a okamžitá ref synchronizace)
+  const [zvukPovolen, setZvukPovolen] = useState(() => {
+    try {
+      const ulozene = localStorage.getItem('yled_zvuk_povolen')
+      return ulozene !== null ? ulozene === 'true' : true
+    } catch {
+      return true
+    }
+  })
+  const zvukPovolenRef = useRef(zvukPovolen)
   const [isFullscreen, setIsFullscreen] = useState(false)
   const containerRef = useRef(null)
   const timerIntervalRef = useRef(null)
   const audioCtxRef = useRef(null)
+
+  const toggleZvuk = () => {
+    setZvukPovolen((prev) => {
+      const novy = !prev
+      zvukPovolenRef.current = novy
+      try {
+        localStorage.setItem('yled_zvuk_povolen', novy ? 'true' : 'false')
+      } catch {}
+      return novy
+    })
+  }
+
+  // Funkce pro správu skóre a hry
+  const vynulovatBody = () => {
+    setTymy((prev) => prev.map((t) => ({ ...t, body: 0 })))
+    setKolaHistorie([])
+    setVitez(null)
+  }
+
+  const novaHra = () => {
+    vynulovatBody()
+    setOdehranaSlova([])
+    restartovatCas()
+    losovatDalsiSlovo()
+  }
+
+  const upravitBodyTymu = (index, zmena) => {
+    setTymy((prev) => {
+      const upravene = [...prev]
+      const akt = { ...upravene[index] }
+      akt.body = Math.max(0, akt.body + zmena)
+      upravene[index] = akt
+      if (ciloveBody > 0 && akt.body >= ciloveBody && !vitez) {
+        setVitez(akt)
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.6 } })
+      }
+      return upravene
+    })
+  }
+
+  const prepnoutRezimBodovani = (novyRezim) => {
+    setTypBodovani(novyRezim)
+    if (novyRezim === 'volna_hra') {
+      vynulovatBody()
+    }
+  }
 
   // Zvukový syntetizér pro Web Audio API
   const getAudioContext = () => {
@@ -279,7 +333,8 @@ export default function CharadesGame() {
   }
 
   const prehrajZvuk = (typ) => {
-    if (!zvukPovolen) return
+    // Okamžitá kontrola z ref, takže mute funguje ihned i uprostřed tikání
+    if (!zvukPovolenRef.current) return
     try {
       const ctx = getAudioContext()
       const now = ctx.currentTime
@@ -743,7 +798,7 @@ export default function CharadesGame() {
 
           {/* Pomocná tlačítka: Zvuk, Pravidla, Nastavení, Fullscreen */}
           <button
-            onClick={() => setZvukPovolen(!zvukPovolen)}
+            onClick={toggleZvuk}
             className="btn btn-secondary"
             title={zvukPovolen ? 'Ztlumit zvuky' : 'Zapnout zvuky'}
             style={{ padding: '8px 12px', minWidth: '40px' }}
@@ -864,6 +919,21 @@ export default function CharadesGame() {
                 <option value="lehka">Pouze lehké (vhodné pro děti)</option>
                 <option value="stredni">Střední (standard)</option>
                 <option value="tezka">Těžké pojmy (pro zkušené)</option>
+              </select>
+            </div>
+
+            {/* Režim bodování */}
+            <div>
+              <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>
+                Režim bodování:
+              </label>
+              <select
+                value={typBodovani}
+                onChange={(e) => prepnoutRezimBodovani(e.target.value)}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: '10px' }}
+              >
+                <option value="tymy">Týmová hra (Tým Modří vs Tým Červení)</option>
+                <option value="volna_hra">Volná hra (bez počítání bodů)</option>
               </select>
             </div>
 
@@ -1062,104 +1132,201 @@ export default function CharadesGame() {
       )}
 
       {/* 4. TÝMY & SKÓRE PANEL */}
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '12px',
-          background: 'rgba(15, 23, 42, 0.6)',
-          padding: '12px 18px',
-          borderRadius: '16px',
-          border: '1px solid rgba(255, 255, 255, 0.08)'
-        }}
-      >
-        {/* Tým 1 vs Tým 2 */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexWrap: 'wrap' }}>
-          {tymy.map((tym, index) => {
-            const jeAktivni = typBodovani === 'tymy' && aktivniTymIndex === index
-            return (
-              <div
-                key={tym.id}
-                onClick={() => {
-                  setAktivniTymIndex(index)
-                  restartovatCas()
-                }}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px',
-                  padding: '8px 16px',
-                  borderRadius: '12px',
-                  border: jeAktivni ? `2px solid ${tym.barva}` : '1px solid rgba(255, 255, 255, 0.06)',
-                  backgroundColor: jeAktivni ? `${tym.barva}22` : 'rgba(255, 255, 255, 0.03)',
-                  boxShadow: jeAktivni ? `0 0 16px ${tym.barva}44` : 'none',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-              >
+      {typBodovani === 'volna_hra' ? (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
+            background: 'rgba(15, 23, 42, 0.45)',
+            padding: '12px 18px',
+            borderRadius: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.06)'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)', fontSize: '13px' }}>
+            <Sparkles size={16} color="#a855f7" />
+            <span>Volná hra bez bodování (žádný stres, čistá zábava)</span>
+          </div>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={novaHra}
+              className="btn btn-secondary"
+              style={{ padding: '6px 12px', fontSize: '12px' }}
+            >
+              <RotateCcw size={13} /> Další slovo
+            </button>
+            <button
+              onClick={() => prepnoutRezimBodovani('tymy')}
+              className="btn btn-primary"
+              style={{ padding: '6px 14px', fontSize: '12px' }}
+            >
+              <Users size={14} /> Zapnout týmové body
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            flexWrap: 'wrap',
+            gap: '12px',
+            background: 'rgba(15, 23, 42, 0.6)',
+            padding: '12px 18px',
+            borderRadius: '16px',
+            border: '1px solid rgba(255, 255, 255, 0.08)'
+          }}
+        >
+          {/* Tým 1 vs Tým 2 */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap' }}>
+            {tymy.map((tym, index) => {
+              const jeAktivni = aktivniTymIndex === index
+              return (
                 <div
-                  style={{
-                    width: '10px',
-                    height: '10px',
-                    borderRadius: '50%',
-                    backgroundColor: tym.barva,
-                    boxShadow: `0 0 8px ${tym.barva}`
+                  key={tym.id}
+                  onClick={() => {
+                    setAktivniTymIndex(index)
+                    restartovatCas()
                   }}
-                />
-                <div>
-                  <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                    {jeAktivni ? 'Právě hraje' : 'Na střídačce'}
-                  </div>
-                  <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>
-                    {tym.nazev}
-                  </div>
-                </div>
-                <div
                   style={{
-                    marginLeft: '8px',
-                    fontSize: '22px',
-                    fontWeight: '800',
-                    color: tym.barva,
-                    fontVariantNumeric: 'tabular-nums'
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '10px',
+                    padding: '8px 14px',
+                    borderRadius: '12px',
+                    border: jeAktivni ? `2px solid ${tym.barva}` : '1px solid rgba(255, 255, 255, 0.06)',
+                    backgroundColor: jeAktivni ? `${tym.barva}22` : 'rgba(255, 255, 255, 0.03)',
+                    boxShadow: jeAktivni ? `0 0 16px ${tym.barva}44` : 'none',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
                   }}
                 >
-                  {tym.body}
+                  <div
+                    style={{
+                      width: '10px',
+                      height: '10px',
+                      borderRadius: '50%',
+                      backgroundColor: tym.barva,
+                      boxShadow: `0 0 8px ${tym.barva}`
+                    }}
+                  />
+                  <div>
+                    <div style={{ fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                      {jeAktivni ? 'Právě hraje' : 'Na střídačce'}
+                    </div>
+                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#fff' }}>
+                      {tym.nazev}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      marginLeft: '6px',
+                      fontSize: '22px',
+                      fontWeight: '800',
+                      color: tym.barva,
+                      fontVariantNumeric: 'tabular-nums'
+                    }}
+                  >
+                    {tym.body}
+                  </div>
+
+                  {/* Ruční rychlá úprava bodů (+/-) */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', marginLeft: '4px' }}>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        upravitBodyTymu(index, 1)
+                      }}
+                      title="Přidat bod ručně"
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: 'none',
+                        color: '#fff',
+                        borderRadius: '4px',
+                        width: '18px',
+                        height: '15px',
+                        fontSize: '11px',
+                        lineHeight: '1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      +
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        upravitBodyTymu(index, -1)
+                      }}
+                      title="Odebrat bod ručně"
+                      style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: 'none',
+                        color: '#fff',
+                        borderRadius: '4px',
+                        width: '18px',
+                        height: '15px',
+                        fontSize: '11px',
+                        lineHeight: '1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      -
+                    </button>
+                  </div>
                 </div>
+              )
+            })}
+
+            <button
+              onClick={prepnoutTym}
+              className="btn btn-secondary"
+              title="Přepnout na druhý tým"
+              style={{ padding: '8px 12px', fontSize: '12px' }}
+            >
+              <Users size={14} /> Další tým
+            </button>
+
+            {/* Tlačítko na ruční reset bodů */}
+            <button
+              onClick={vynulovatBody}
+              className="btn btn-secondary"
+              title="Vynulovat skóre obou týmů na 0:0"
+              style={{ padding: '8px 12px', fontSize: '12px', color: '#fca5a5' }}
+            >
+              <RotateCcw size={13} /> Reset bodů
+            </button>
+          </div>
+
+          {/* Cíl a historie tahu */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+            {ciloveBody > 0 && (
+              <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
+                Cíl: <strong style={{ color: '#facc15' }}>{ciloveBody} bodů</strong>
               </div>
-            )
-          })}
+            )}
 
-          <button
-            onClick={prepnoutTym}
-            className="btn btn-secondary"
-            title="Přepnout na druhý tým"
-            style={{ padding: '8px 14px', fontSize: '12px' }}
-          >
-            <Users size={14} /> Další tým
-          </button>
+            {kolaHistorie.length > 0 && (
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                V tomto tahu:{' '}
+                <span style={{ color: '#4ade80', fontWeight: '700' }}>
+                  +{kolaHistorie.filter((k) => k.uspech).length}
+                </span>{' '}
+                / celkem {kolaHistorie.length}
+              </div>
+            )}
+          </div>
         </div>
-
-        {/* Cíl a historie tahu */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-          {ciloveBody > 0 && (
-            <div style={{ fontSize: '13px', color: 'var(--text-secondary)' }}>
-              Cíl: <strong style={{ color: '#facc15' }}>{ciloveBody} bodů</strong>
-            </div>
-          )}
-
-          {kolaHistorie.length > 0 && (
-            <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
-              V tomto tahu:{' '}
-              <span style={{ color: '#4ade80', fontWeight: '700' }}>
-                +{kolaHistorie.filter((k) => k.uspech).length}
-              </span>{' '}
-              / celkem {kolaHistorie.length}
-            </div>
-          )}
-        </div>
-      </div>
+      )}
 
       {/* 5. VÍTĚZNÁ BANNER OBRAZOVKA (Pokud tým vyhraje) */}
       {vitez && (

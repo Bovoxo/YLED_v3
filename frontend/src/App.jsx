@@ -16,34 +16,77 @@ import CharadesGame from './components/modules/CharadesGame'
 
 export default function App() {
   const [aktivni, setAktivni] = useState('losovac')
+  const [rozlozeni, setRozlozeni] = useState(() => {
+    try {
+      return localStorage.getItem('yled_layout_mode') || 'nahore' // 'nahore' | 'sidebar'
+    } catch {
+      return 'nahore'
+    }
+  })
 
+  const zmenitRozlozeni = (nove) => {
+    setRozlozeni(nove)
+    try {
+      localStorage.setItem('yled_layout_mode', nove)
+    } catch {}
+  }
+
+  // Společný obsah modulů
+  const renderModul = () => (
+    <main>
+      {aktivni === 'losovac' && <RandomNumber />}
+      {aktivni === 'raffle' && <RaffleWheel />}
+      {aktivni === 'charades' && <CharadesGame />}
+      {aktivni === 'tymy' && <TeamSplitter />}
+      {aktivni === 'pavouk' && <TournamentBracket />}
+      {aktivni === 'tictacboom' && <TicTacBoom />}
+      {aktivni === 'odpocet' && <CountdownTimer />}
+      {aktivni === 'qr' && <QrGenerator />}
+      {aktivni === 'prezentace' && <LyricsToPpt />}
+      {aktivni === 'youtube' && <YouTubeDownloader />}
+      {aktivni === 'imposter' && <ImposterGame />}
+
+      {/* Soundboard je vykreslený trvale se skrytím, aby se nepřerušil běžící zvuk při přepnutí */}
+      <div style={{ display: aktivni === 'soundboard' ? 'block' : 'none' }}>
+        <Soundboard />
+      </div>
+    </main>
+  )
+
+  // 1. Varianta: Boční panel vlevo (Sidebar)
+  if (rozlozeni === 'sidebar') {
+    return (
+      <div className="app-layout-sidebar-container">
+        <Navbar
+          aktivni={aktivni}
+          setAktivni={setAktivni}
+          rozlozeni={rozlozeni}
+          setRozlozeni={zmenitRozlozeni}
+        />
+        <div className="app-main-content">
+          <Header compact={true} />
+          {renderModul()}
+        </div>
+      </div>
+    )
+  }
+
+  // 2. Varianta: Klasický horní panel (kategorie a lišta nahoře)
   return (
     <div className="app-container">
       {/* Horní hlavička se statusem backendu */}
       <Header />
 
-      {/* Moderní navigace s ikonami */}
-      <Navbar aktivni={aktivni} setAktivni={setAktivni} />
+      {/* Moderní navigace s kategoriemi */}
+      <Navbar
+        aktivni={aktivni}
+        setAktivni={setAktivni}
+        rozlozeni={rozlozeni}
+        setRozlozeni={zmenitRozlozeni}
+      />
 
       {/* Zobrazení aktivního modulu */}
-      <main>
-        {aktivni === 'losovac' && <RandomNumber />}
-        {aktivni === 'raffle' && <RaffleWheel />}
-        {aktivni === 'charades' && <CharadesGame />}
-        {aktivni === 'tymy' && <TeamSplitter />}
-        {aktivni === 'pavouk' && <TournamentBracket />}
-        {aktivni === 'tictacboom' && <TicTacBoom />}
-        {aktivni === 'odpocet' && <CountdownTimer />}
-        {aktivni === 'qr' && <QrGenerator />}
-        {aktivni === 'prezentace' && <LyricsToPpt />}
-        {aktivni === 'youtube' && <YouTubeDownloader />}
-        {aktivni === 'imposter' && <ImposterGame />}
-
-        {/* Soundboard je vykreslený trvale se skrytím, aby se nepřerušil běžící zvuk při přepnutí */}
-        <div style={{ display: aktivni === 'soundboard' ? 'block' : 'none' }}>
-          <Soundboard />
-        </div>
-      </main>
+      {renderModul()}
     </div>
   )
 }
